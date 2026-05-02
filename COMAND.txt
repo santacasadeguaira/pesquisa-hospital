@@ -1,0 +1,3 @@
+NPM START
+http://localhost:3000/relatorios.html
+http://localhost:3000/api/debug/limpar?confirm=SIM

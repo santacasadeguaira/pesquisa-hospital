@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSOPSC - Relatórios Administrativos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Times New Roman', serif; background: #f5f5f5; padding: 20px; line-height: 1.6; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border: 1px solid #ddd; }
+        .titulo-secao { font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 30px; text-align: center; border-bottom: 2px solid #9b59b6; padding-bottom: 15px; }
+        .pergunta-numero { font-size: 18px; font-weight: bold; color: #e74c3c; margin-bottom: 20px; }
+        .progresso { background: #ecf0f1; height: 20px; border-radius: 10px; margin: 20px 0; }
+        .progresso-bar { height: 100%; background: #3498db; border-radius: 10px; width: 0%; transition: width 0.3s; }
+        .opcoes-likert { display: flex; flex-direction: column; gap: 10px; }
+        .opcao-likert { padding: 15px; border: 2px solid #bdc3c7; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
+        .opcao-likert:hover { background: #e8f4f8; border-color: #3498db; }
+        .opcao-likert input { margin-right: 10px; transform: scale(1.2); }
+        .btn-proximo { background: #28a745; color: white; padding: 15px 50px; font-size: 16px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; display: block; margin: 40px auto 0; text-transform: uppercase; }
+        .btn-proximo:hover { background: #218838; }
+        .grupo { margin: 20px 0; padding: 15px; background: #f8f9fa; border-left: 4px solid #3498db; border-radius: 5px; }
+        .grupo-titulo { font-weight: bold; font-size: 15px; color: #2c3e50; margin-bottom: 12px; font-style: italic; }
+        .opcao { display: flex; align-items: flex-start; margin: 8px 0; padding: 8px; cursor: pointer; transition: background 0.2s; }
+        .opcao:hover { background: #e8f4f8; }
+        .opcao input[type="radio"] { margin: 3px 10px 0 0; transform: scale(1.2); cursor: pointer; }
+        .opcao-texto { font-size: 14px; line-height: 1.4; }
+        .outro-input { margin-left: 28px; margin-top: 5px; padding: 8px; width: 300px; border: 1px solid #ccc; display: none; }
+        .final-tela { text-align: center; padding: 50px; }
+        .final-tela h2 { color: #27ae60; margin-bottom: 20px; font-size: 28px; }
+        .final-tela p { font-size: 18px; margin-bottom: 30px; }
+        .tela { display: none; }
+        .tela.ativa { display: block; }
+        .pergunta-texto { font-size: 16px; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-left: 4px solid #3498db; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="titulo-secao">📊 Painel de Relatórios Administrativos - HSOPSC</div>
+        
+        <!-- BOTÕES DE RELATÓRIOS RÁPIDOS -->
+        <div style="display:flex;gap:15px;flex-wrap:wrap;margin-bottom:30px;">
+            <div style="background:#e8f4f8;padding:20px;border-radius:8px;border-left:5px solid #3498db;flex:1;min-width:250px;">
+                <h3 style="margin-bottom:10px;color:#2c3e50;">📋 Relatório por Cargo</h3>
+                <p style="margin-bottom:15px;color:#555;font-size:14px;">Pergunta 1: Qual é o seu cargo?</p>
+                <button class="btn-proximo" onclick="gerarRelatorioCargos()" style="margin:0;display:inline-block;padding:12px 25px;font-size:14px;">
+                    📊 Gerar Relatório
+                </button>
+            </div>
+            
+            <div style="background:#fff3e0;padding:20px;border-radius:8px;border-left:5px solid #e67e22;flex:1;min-width:250px;">
+                <h3 style="margin-bottom:10px;color:#2c3e50;">🏥 Relatório por Unidade</h3>
+                <p style="margin-bottom:15px;color:#555;font-size:14px;">Pergunta 2: Qual é a sua unidade?</p>
+                <button class="btn-proximo" onclick="gerarRelatorioUnidades()" style="margin:0;display:inline-block;padding:12px 25px;font-size:14px;background:#e67e22;">
+                    📊 Gerar Relatório
+                </button>
+            </div>
+        </div>
+
+        <!-- FILTROS AVANÇADOS -->
+        <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+            <h3 style="margin-bottom:15px;color:#2c3e50;">🔍 Filtros Avançados por Pergunta</h3>
+            <div style="display:flex;gap:15px;flex-wrap:wrap;margin-bottom:15px;">
+                <div>
+                    <label style="display:block;margin-bottom:5px;font-weight:bold;">Cargo:</label>
+                    <select id="filtro-cargo" style="padding:10px;border:2px solid #bdc3c7;border-radius:5px;min-width:200px;">
+                        <option value="">Todos os Cargos</option>
+                        <option value="1">1 - Enfermeiro</option>
+                        <option value="2">2 - Técnico de Enfermagem</option>
+                        <option value="3">3 - Auxiliar de Enfermagem</option>
+                        <option value="4">4 - Residente de Enfermagem</option>
+                        <option value="5">5 - Estagiário de Enfermagem</option>
+                        <option value="6">6 - Médico</option>
+                        <option value="7">7 - Médico Hospitalista</option>
+                        <option value="8">8 - Residente de Medicina</option>
+                        <option value="9">9 - Interno de Medicina</option>
+                        <option value="10">10 - Nutricionista</option>
+                        <option value="11">11 - Farmacêutico</option>
+                        <option value="12">12 - Fisioterapeuta</option>
+                        <option value="13">13 - Psicólogo</option>
+                        <option value="14">14 - Bioquímico</option>
+                        <option value="15">15 - Assistente Social</option>
+                        <option value="16">16 - Dentista</option>
+                        <option value="17">17 - Técnico (Lab/Rx)</option>
+                        <option value="18">18 - Supervisor/Gerente</option>
+                        <option value="19">19 - Alta Liderança</option>
+                        <option value="20">20 - Hotelaria/Manutenção</option>
+                        <option value="21">21 - Serviço Nutrição</option>
+                        <option value="22">22 - Serviço Limpeza</option>
+                        <option value="23">23 - TI/Informática</option>
+                        <option value="24">24 - Segurança</option>
+                        <option value="25">25 - Transporte</option>
+                        <option value="26">26 - Administrativo</option>
+                        <option value="27">27 - Outro</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label style="display:block;margin-bottom:5px;font-weight:bold;">Pergunta:</label>
+                    <select id="filtro-pergunta" style="padding:10px;border:2px solid #bdc3c7;border-radius:5px;min-width:300px;">
+                        <option value="">Selecione uma pergunta...</option>
+                        <optgroup label="Seção A - Sua Unidade">
+                            <option value="A1">A1 - Trabalhamos como equipe integrada</option>
+                            <option value="A2">A2 - Profissionais suficientes</option>
+                            <option value="A3">A3 - Trabalhamos mais horas que desejável</option>
+                            <option value="A4">A4 - Revisamos processos regularmente</option>
+                            <option value="A5">A5 - Dependemos de terceirizados</option>
+                            <option value="A6">A6 - Erros são usados contra profissionais</option>
+                            <option value="A7">A7 - Pessoa notificada, não o problema</option>
+                            <option value="A8">A8 - Ajuda em sobrecarga</option>
+                            <option value="A9">A9 - Comportamento desrespeitoso</option>
+                            <option value="A10">A10 - Foco no aprendizado, não culpa</option>
+                            <option value="A11">A11 - Ritmo intenso afeta segurança</option>
+                            <option value="A12">A12 - Mudanças avaliadas</option>
+                            <option value="A13">A13 - Falta apoio aos envolvidos em erros</option>
+                            <option value="A14">A14 - Mesmos problemas continuam</option>
+                        </optgroup>
+                        <optgroup label="Seção B - Supervisor">
+                            <option value="B1">B1 - Considera sugestões para segurança</option>
+                            <option value="B2">B2 - Quer trabalhar mais rápido/pular etapas</option>
+                            <option value="B3">B3 - Adota medidas para resolver questões</option>
+                        </optgroup>
+                        <optgroup label="Seção C - Comunicação">
+                            <option value="C1">C1 - Informados sobre erros/incidentes</option>
+                            <option value="C2">C2 - Discutimos como evitar erros</option>
+                            <option value="C3">C3 - Informados sobre mudanças</option>
+                            <option value="C4">C4 - Falamos abertamente sobre problemas</option>
+                            <option value="C5">C5 - Falamos quando vemos autoridade insegura</option>
+                            <option value="C6">C6 - Autoridade aberta a preocupações</option>
+                            <option value="C7">C7 - Receio de fazer perguntas</option>
+                        </optgroup>
+                        <optgroup label="Seção D - Notificação">
+                            <option value="D1">D1 - Incidente corrigido antes de atingir paciente</option>
+                            <option value="D2">D2 - Incidente atingiu mas não causou dano</option>
+                            <option value="D3">D3 - Quantos incidentes você notificou</option>
+                        </optgroup>
+                        <optgroup label="Seção E - Avaliação">
+                            <option value="avaliacao_seguranca">E - Avaliação geral da segurança</option>
+                        </optgroup>
+                        <optgroup label="Seção F - Hospital">
+                            <option value="F1">F1 - Gestão demonstra prioridade à segurança</option>
+                            <option value="F2">F2 - Recursos adequados fornecidos</option>
+                            <option value="F3">F3 - Interesse só após evento adverso</option>
+                            <option value="F4">F4 - Informações perdidas na transferência</option>
+                            <option value="F5">F5 - Informações omitidas na mudança de turno</option>
+                            <option value="F6">F6 - Tempo suficiente na mudança de turno</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div style="display:flex;align-items:flex-end;">
+                    <button class="btn-proximo" onclick="gerarRelatorio()" style="margin:0;padding:12px 30px;">🔍 Gerar Relatório</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- RESULTADO DO RELATÓRIO -->
+        <div id="resultado-relatorio" style="display:none;">
+            <h3 style="margin-bottom:15px;color:#2c3e50;">📈 Resultados</h3>
+            
+            <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                <h4 style="margin-bottom:10px;">Resumo por Resposta</h4>
+                <table style="width:100%;border-collapse:collapse;" id="tabela-resumo">
+                    <thead>
+                        <tr style="background:#34495e;color:white;">
+                            <th style="padding:12px;text-align:left;">Resposta</th>
+                            <th style="padding:12px;text-align:center;">Quantidade</th>
+                            <th style="padding:12px;text-align:center;">Percentual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpo-tabela"></tbody>
+                </table>
+            </div>
+            
+            <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                <h4 style="margin-bottom:10px;">📊 Gráfico</h4>
+                <div style="height:400px;position:relative;">
+                    <canvas id="grafico-relatorio"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align:center;margin-top:30px;">
+            <a href="index.html" style="background:#7f8c8d;color:white;padding:15px 50px;font-size:16px;font-weight:bold;border:none;border-radius:5px;cursor:pointer;display:inline-block;text-decoration:none;text-transform:uppercase;">
+                ⬅️ Voltar ao Questionário
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Mapeamento de textos das respostas
+        const textosRespostas = {
+            '1': 'Discordo Totalmente / Nunca / Ruim / Nenhum',
+            '2': 'Discordo / Raramente / Razoável / 1 a 2',
+            '3': 'Neutro / Às vezes / Boa / 3 a 5',
+            '4': 'Concordo / Quase sempre / Muito boa / 6 a 10',
+            '5': 'Concordo Totalmente / Sempre / Excelente / 11+',
+            '9': 'Não se aplica / Não sei',
+            'a': 'Nenhum (D3)',
+            'b': '1 a 2 (D3)',
+            'c': '3 a 5 (D3)',
+            'd': '6 a 10 (D3)',
+            'e': '11 ou mais (D3)'
+        };
+        
+                // Mapeamento de cargos
+        const nomesCargos = {
+            1: 'Enfermeiro',
+            2: 'Técnico de Enfermagem',
+            3: 'Auxiliar de Enfermagem',
+            4: 'Residente de Enfermagem',
+            5: 'Estagiário de Enfermagem',
+            6: 'Médico',
+            7: 'Médico Hospitalista',
+            8: 'Residente de Medicina',
+            9: 'Interno de Medicina',
+            10: 'Nutricionista',
+            11: 'Farmacêutico/Técnico/Auxiliar',
+            12: 'Fisioterapeuta/Terapeuta/Fonoaudiólogo',
+            13: 'Psicólogo',
+            14: 'Bioquímico',
+            15: 'Assistente Social',
+            16: 'Dentista',
+            17: 'Técnico (Lab/Rx)',
+            18: 'Supervisor/Gerente/Chefe',
+            19: 'Alta Liderança',
+            20: 'Hotelaria/Manutenção',
+            21: 'Serviço Nutrição',
+            22: 'Serviço Limpeza',
+            23: 'TI/Informática',
+            24: 'Segurança',
+            25: 'Transporte',
+            26: 'Administrativo',
+            27: 'Outro'
+        };
+        
+        // Mapeamento de unidades
+        const nomesUnidades = {
+            1: 'Vários setores/nenhum específico',
+            2: 'Unidade Mista Clínica e Cirúrgica',
+            3: 'Unidade Clínica (Não-Cirúrgica)',
+            4: 'Unidade Cirúrgica',
+            5: 'Central de Material e Esterilização (CME)',
+            6: 'Cardiologia',
+            7: 'Serviço de Emergência/Observação',
+            8: 'Gastroenterologia',
+            9: 'UTI (adulto - todos os tipos)',
+            10: 'Maternidade/Obstetrícia/Ginecologia',
+            11: 'Oncologia/Hematologia',
+            12: 'Pediatria (incluindo UTI Neonatal/Pediátrica)',
+            13: 'Psiquiatria e Saúde Mental',
+            14: 'Pneumologia',
+            15: 'Reabilitação/Fisiatria',
+            16: 'Anestesiologia',
+            17: 'Endoscopia/Colonoscopia',
+            18: 'Pré Operatório/Centro Cirúrgico/Recuperação',
+            19: 'Patologia/Laboratório',
+            20: 'Farmácia',
+            21: 'Radiologia/Exames de Imagem',
+            22: 'Terapia Respiratória',
+            23: 'Serviço Social/Planejamento de Alta',
+            24: 'Administração/Gestão',
+            25: 'Serviços Financeiros/Faturamento',
+            26: 'Recursos Humanos/Treinamento',
+            27: 'Educação Continuada',
+            28: 'Tecnologia da Informação/Informática Clínica',
+            29: 'Setor de Arquivo Médico (SAME)',
+            30: 'Qualidade/Gestão de Risco/Segurança do Paciente',
+            31: 'Recepção/Cadastro',
+            32: 'Serviço de Nutrição e Dietética',
+            33: 'Serviço de Limpeza/Hotelaria/Manutenção',
+            34: 'Serviço de Segurança',
+            35: 'Transporte',
+            36: 'Outro'
+        };
+        
+        let graficoAtual = null;
+        
+        // Relatório por Cargos (Pergunta 1)
+        async function gerarRelatorioCargos() {
+            try {
+                const resposta = await fetch('/api/relatorios/cargos');
+                const dados = await resposta.json();
+                
+                if(!dados || dados.length === 0) {
+                    alert('Nenhum dado encontrado!');
+                    return;
+                }
+                
+                const total = dados.reduce((sum, item) => sum + item.quantidade, 0);
+                
+                let html = `
+                    <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                        <h3 style="color:#2c3e50;margin-bottom:15px;">📋 Pergunta 1: Qual é o seu cargo?</h3>
+                        <p style="font-size:18px;color:#27ae60;"><strong>Total: ${total} pessoas</strong></p>
+                    </div>
+                    <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                        <table style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr style="background:#34495e;color:white;">
+                                    <th style="padding:12px;">#</th>
+                                    <th style="padding:12px;text-align:left;">Cargo</th>
+                                    <th style="padding:12px;text-align:center;">Qtd</th>
+                                    <th style="padding:12px;text-align:center;">%</th>
+                                    <th style="padding:12px;">Visual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                const cores = ['#e74c3c', '#e67e22', '#f39c12', '#27ae60', '#16a085', '#3498db', '#9b59b6', '#34495e'];
+                
+                dados.forEach((item, index) => {
+                    const percentual = ((item.quantidade / total) * 100).toFixed(1);
+                    const cor = cores[index % cores.length];
+                    html += `
+                        <tr style="border-bottom:1px solid #ddd;">
+                            <td style="padding:10px;font-weight:bold;">${index + 1}</td>
+                            <td style="padding:10px;">${nomesCargos[item.cargo] || 'Cargo '+item.cargo}</td>
+                            <td style="padding:10px;text-align:center;font-weight:bold;color:${cor};">${item.quantidade}</td>
+                            <td style="padding:10px;text-align:center;">${percentual}%</td>
+                            <td style="padding:10px;">
+                                <div style="background:#ecf0f1;height:20px;border-radius:10px;">
+                                    <div style="background:${cor};height:100%;border-radius:10px;width:${percentual}%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table></div>`;
+                
+                // Gráfico
+                html += `
+                    <div style="background:white;padding:20px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                        <h4 style="margin-bottom:15px;">📊 Gráfico</h4>
+                        <div style="height:400px;">
+                            <canvas id="grafico-cargos"></canvas>
+                        </div>
+                    </div>
+                `;
+                
+                mostrarModal('Relatório por Cargo', html);
+                
+                // Criar gráfico
+                const ctx = document.getElementById('grafico-cargos').getContext('2d');
+                if(graficoAtual) graficoAtual.destroy();
+                
+                graficoAtual = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: dados.map(d => nomesCargos[d.cargo] || `Cargo ${d.cargo}`),
+                        datasets: [{
+                            data: dados.map(d => d.quantidade),
+                            backgroundColor: dados.map((_, idx) => cores[idx % cores.length]),
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            title: { display: true, text: `Distribuição por Cargo (Total: ${total})` }
+                        }
+                    }
+                });
+                
+            } catch(e) {
+                console.error('Erro:', e);
+                alert('Erro ao gerar relatório: ' + e.message);
+            }
+        }
+        
+        // Relatório por Unidades (Pergunta 2)
+        async function gerarRelatorioUnidades() {
+            try {
+                const resposta = await fetch('/api/relatorios/unidades');
+                const dados = await resposta.json();
+                
+                if(!dados || dados.length === 0) {
+                    alert('Nenhum dado encontrado!');
+                    return;
+                }
+                
+                const total = dados.reduce((sum, item) => sum + item.quantidade, 0);
+                
+                let html = `
+                    <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                        <h3 style="color:#2c3e50;margin-bottom:15px;">🏥 Pergunta 2: Qual é a sua unidade?</h3>
+                        <p style="font-size:18px;color:#27ae60;"><strong>Total: ${total} pessoas</strong></p>
+                    </div>
+                    <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                            <thead>
+                                <tr style="background:#34495e;color:white;">
+                                    <th style="padding:10px;">#</th>
+                                    <th style="padding:10px;text-align:left;">Unidade</th>
+                                    <th style="padding:10px;text-align:center;">Qtd</th>
+                                    <th style="padding:10px;text-align:center;">%</th>
+                                    <th style="padding:10px;">Visual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                const cores = ['#e74c3c', '#e67e22', '#f39c12', '#27ae60', '#16a085', '#3498db', '#9b59b6', '#34495e', '#1abc9c', '#f1c40f'];
+                
+                dados.forEach((item, index) => {
+                    const percentual = ((item.quantidade / total) * 100).toFixed(1);
+                    const cor = cores[index % cores.length];
+                    const nomeUnidade = nomesUnidades[item.unidade] || `Unidade ${item.unidade}`;
+                    html += `
+                        <tr style="border-bottom:1px solid #ddd;">
+                            <td style="padding:8px;font-weight:bold;">${index + 1}</td>
+                            <td style="padding:8px;">${nomeUnidade}</td>
+                            <td style="padding:8px;text-align:center;font-weight:bold;color:${cor};">${item.quantidade}</td>
+                            <td style="padding:8px;text-align:center;">${percentual}%</td>
+                            <td style="padding:8px;">
+                                <div style="background:#ecf0f1;height:18px;border-radius:9px;">
+                                    <div style="background:${cor};height:100%;border-radius:9px;width:${percentual}%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table></div>`;
+                
+                // Gráfico
+                html += `
+                    <div style="background:white;padding:20px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                        <h4 style="margin-bottom:15px;">📊 Gráfico</h4>
+                        <div style="height:400px;">
+                            <canvas id="grafico-unidades"></canvas>
+                        </div>
+                    </div>
+                `;
+                
+                mostrarModal('Relatório por Unidade', html);
+                
+                // Criar gráfico
+                const ctx = document.getElementById('grafico-unidades').getContext('2d');
+                if(graficoAtual) graficoAtual.destroy();
+                
+                graficoAtual = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: dados.map(d => {
+                            const nome = nomesUnidades[d.unidade] || `Unidade ${d.unidade}`;
+                            return nome.length > 25 ? nome.substring(0,25)+'...' : nome;
+                        }),
+                        datasets: [{
+                            data: dados.map(d => d.quantidade),
+                            backgroundColor: dados.map((_, idx) => cores[idx % cores.length]),
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
+                            title: { display: true, text: `Distribuição por Unidade (Total: ${total})` }
+                        }
+                    }
+                });
+                
+            } catch(e) {
+                console.error('Erro:', e);
+                alert('Erro ao gerar relatório: ' + e.message);
+            }
+        }
+        
+        // Relatório por Pergunta (Filtros Avançados)
+        async function gerarRelatorio() {
+            const cargo = document.getElementById('filtro-cargo').value;
+            const pergunta = document.getElementById('filtro-pergunta').value;
+            
+            if(!pergunta) {
+                alert('Selecione uma pergunta!');
+                return;
+            }
+            
+            try {
+                const url = `/api/relatorios?pergunta=${pergunta}${cargo ? '&cargo='+cargo : ''}`;
+                const resposta = await fetch(url);
+                const dados = await resposta.json();
+                
+                if(!dados || dados.length === 0) {
+                    document.getElementById('resultado-relatorio').style.display = 'block';
+                    document.getElementById('corpo-tabela').innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">Nenhum dado encontrado.</td></tr>';
+                    return;
+                }
+                
+                const contagem = {};
+                let total = 0;
+                
+                dados.forEach(item => {
+                    try {
+                        const respostas = JSON.parse(item.respostas || '{}');
+                        const valor = respostas[pergunta];
+                        if(valor !== undefined && valor !== '') {
+                            contagem[valor] = (contagem[valor] || 0) + 1;
+                            total++;
+                        }
+                    } catch(e) {}
+                });
+                
+                const ordem = ['1','2','3','4','5','9','a','b','c','d','e'];
+                const ordenado = Object.entries(contagem).sort((a,b) => {
+                    const idxA = ordem.indexOf(a[0]);
+                    const idxB = ordem.indexOf(b[0]);
+                    return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+                });
+                
+                let htmlTabela = '';
+                ordenado.forEach(([resposta, qtd]) => {
+                    const percentual = ((qtd/total)*100).toFixed(1);
+                    const texto = textosRespostas[resposta] || `Resposta ${resposta}`;
+                    htmlTabela += `
+                        <tr style="border-bottom:1px solid #ddd;">
+                            <td style="padding:10px;">${texto}</td>
+                            <td style="padding:10px;text-align:center;font-weight:bold;">${qtd}</td>
+                            <td style="padding:10px;text-align:center;">${percentual}%</td>
+                        </tr>
+                    `;
+                });
+                
+                document.getElementById('corpo-tabela').innerHTML = htmlTabela;
+                
+                // Gráfico
+                const ctx = document.getElementById('grafico-relatorio').getContext('2d');
+                if(graficoAtual) graficoAtual.destroy();
+                
+                const cores = {'1':'#e74c3c','2':'#e67e22','3':'#f39c12','4':'#27ae60','5':'#16a085','9':'#95a5a6'};
+                
+                graficoAtual = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ordenado.map(([resp]) => textosRespostas[resp] || resp),
+                        datasets: [{
+                            label: 'Quantidade',
+                            data: ordenado.map(([,qtd]) => qtd),
+                            backgroundColor: ordenado.map(([resp]) => cores[resp] || '#3498db'),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            title: { display: true, text: `Respostas para ${pergunta} (Total: ${total})` }
+                        },
+                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    }
+                });
+                
+                document.getElementById('resultado-relatorio').style.display = 'block';
+            } catch(e) {
+                console.error('Erro:', e);
+                alert('Erro ao gerar relatório: ' + e.message);
+            }
+        }
+        
+        // Função auxiliar para mostrar modal
+        function mostrarModal(titulo, conteudo) {
+            const modal = document.createElement('div');
+            modal.id = 'modal-relatorio';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                z-index: 9999;
+                overflow: auto;
+                padding: 20px;
+            `;
+            modal.innerHTML = `
+                <div style="max-width: 1000px; margin: 30px auto; background: white; padding: 30px; border-radius: 10px; position: relative;">
+                    <button onclick="document.getElementById('modal-relatorio').remove()" 
+                        style="position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                        ✕ Fechar
+                    </button>
+                    <h2 style="color: #2c3e50; margin-bottom: 20px; border-bottom: 2px solid #3498db; padding-bottom: 10px;">${titulo}</h2>
+                    ${conteudo}
+                </div>
+            `;
+            
+            // Remover modal anterior se existir
+            const anterior = document.getElementById('modal-relatorio');
+            if(anterior) anterior.remove();
+            
+            document.body.appendChild(modal);
+        }
+    </script>
+</body>
+</html>

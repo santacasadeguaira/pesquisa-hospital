@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSOPSC - Questionário</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Times New Roman', serif; background: #f5f5f5; padding: 20px; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border: 1px solid #ddd; }
+        .tela { display: none; }
+        .tela.ativa { display: block; }
+        .titulo-secao { font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 30px; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 15px; }
+        .intro-texto { font-size: 16px; text-align: justify; margin-bottom: 20px; line-height: 1.7; }
+        .pergunta-numero { font-size: 18px; font-weight: bold; color: #e74c3c; margin-bottom: 20px; }
+        .pergunta-texto { font-size: 16px; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-left: 4px solid #3498db; line-height: 1.5; }
+        .grupo { margin: 20px 0; padding: 15px; background: #f8f9fa; border-left: 4px solid #3498db; }
+        .grupo-titulo { font-weight: bold; font-size: 15px; color: #2c3e50; margin-bottom: 12px; font-style: italic; }
+        .opcao { display: flex; align-items: flex-start; margin: 8px 0; padding: 8px; cursor: pointer; transition: background 0.2s; }
+        .opcao:hover { background: #e8f4f8; }
+        .opcao input[type="radio"] { margin: 3px 10px 0 0; transform: scale(1.2); cursor: pointer; }
+        .opcao-texto { font-size: 14px; line-height: 1.4; }
+        .btn-proximo { background: #28a745; color: white; padding: 15px 50px; font-size: 16px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; display: block; margin: 40px auto 0; text-transform: uppercase; }
+        .btn-proximo:hover { background: #218838; }
+        .outro-input { margin-left: 28px; margin-top: 5px; padding: 8px; width: 300px; border: 1px solid #ccc; display: none; }
+        .progresso { background: #ecf0f1; height: 20px; border-radius: 10px; margin: 20px 0; }
+        .progresso-bar { height: 100%; background: #3498db; border-radius: 10px; width: 0%; transition: width 0.3s; }
+        .opcoes-likert { display: flex; flex-direction: column; gap: 10px; }
+        .opcao-likert { padding: 15px; border: 2px solid #bdc3c7; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
+        .opcao-likert:hover { background: #e8f4f8; border-color: #3498db; }
+        .opcao-likert input { margin-right: 10px; transform: scale(1.2); }
+        .final-tela { text-align: center; padding: 50px; }
+        .final-tela h2 { color: #27ae60; margin-bottom: 20px; font-size: 28px; }
+        .final-tela p { font-size: 18px; margin-bottom: 30px; }
+        textarea { width: 100%; height: 200px; padding: 15px; font-family: Arial; font-size: 14px; border: 2px solid #bdc3c7; border-radius: 8px; resize: vertical; }
+    </style>
+</head>
+<body>
+        <div class="container">
+        
+        <!-- TELA 0: INTRODUÇÃO -->
+        <div id="tela0" class="tela ativa">
+            <div class="titulo-secao">Questionário Hospitalar sobre Cultura de Segurança do Paciente</div>
+            <div class="intro-texto">
+                <p><strong>Este questionário solicita sua opinião sobre segurança do paciente, erros associados ao cuidado de saúde e notificação de incidentes em seu hospital; ele tomará cerca de 10 a 15 minutos para ser preenchido.</strong></p>
+                                <p>Se uma questão não se aplicar a você ou ao seu hospital, ou se você não souber como respondê-la, por favor, selecione a opção "<strong>Não se aplica ou Não sei</strong>".</p>
+                <div style="background: #e8f4f8; padding: 20px; border-left: 5px solid #3498db; margin: 25px 0;">
+                    <p><strong>A "segurança do paciente" é definida como evitar e prevenir danos aos pacientes ou eventos adversos, resultantes dos processos de prestação de cuidados de saúde.</strong></p>
+                </div>
+                <div style="background: #e8f4f8; padding: 20px; border-left: 5px solid #3498db; margin: 25px 0;">
+                    <p><strong>Um "incidente de segurança do paciente" é definido como qualquer tipo de erro, falha ou evento associado à prestação de cuidados de saúde, INDEPENDENTEMENTE DE TER OU NÃO CAUSADO DANO AO PACIENTE.</strong></p>
+                </div>
+            </div>
+            <button class="btn-proximo" onclick="irPara('tela1')">🚀 Iniciar Questionário</button>
+        </div>
+
+        <!-- TELA 1: CARGO -->
+        <div id="tela1" class="tela">
+            <div class="titulo-secao">Sua posição na equipe</div>
+            <div class="pergunta-numero">1. Qual é o seu cargo nesse hospital?</div>
+            <form onsubmit="event.preventDefault(); salvarCargo();">
+                <div class="grupo">
+                    <div class="grupo-titulo">Enfermagem</div>
+                    <label class="opcao"><input type="radio" name="cargo" value="1" required><span class="opcao-texto">1 Enfermeiro</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="2"><span class="opcao-texto">2 Técnico de Enfermagem</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="3"><span class="opcao-texto">3 Auxiliar de Enfermagem</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="4"><span class="opcao-texto">4 Residente de Enfermagem</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="5"><span class="opcao-texto">5 Estagiário de Enfermagem (Graduação)</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Medicina</div>
+                    <label class="opcao"><input type="radio" name="cargo" value="6"><span class="opcao-texto">6 Médico</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="7"><span class="opcao-texto">7 Médico Hospitalista</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="8"><span class="opcao-texto">8 Residente de Medicina</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="9"><span class="opcao-texto">9 Interno de Medicina</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Outra Profissão de Saúde</div>
+                    <label class="opcao"><input type="radio" name="cargo" value="10"><span class="opcao-texto">10 Nutricionista</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="11"><span class="opcao-texto">11 Farmacêutico, Técnico ou Auxiliar de Farmácia</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="12"><span class="opcao-texto">12 Fisioterapeuta, Terapeuta Ocupacional ou Fonoaudiólogo</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="13"><span class="opcao-texto">13 Psicólogo</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="14"><span class="opcao-texto">14 Bioquímico</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="15"><span class="opcao-texto">15 Assistente Social</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="16"><span class="opcao-texto">16 Dentista</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="17"><span class="opcao-texto">17 Técnico (por exemplo, de Laboratório, Rx, Eletrocardiograma)</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Supervisor, Gerente, Líder de equipe/clínica, Alta liderança</div>
+                    <label class="opcao"><input type="radio" name="cargo" value="18"><span class="opcao-texto">18 Supervisor, Gerente de Departamento, Chefe de equipe/clínica, Administrador, Diretor</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="19"><span class="opcao-texto">19 Superintendente, Diretor Geral, Diretor Presidente</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Apoio</div>
+                    <label class="opcao"><input type="radio" name="cargo" value="20"><span class="opcao-texto">20 Hotelaria, Manutenção e Infraestrutura</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="21"><span class="opcao-texto">21 Serviço de Nutrição e Dietética</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="22"><span class="opcao-texto">22 Serviço de Limpeza</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="23"><span class="opcao-texto">23 Tecnologia da Informação, Serviço de Informações em Saúde, Informática Médica</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="24"><span class="opcao-texto">24 Segurança</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="25"><span class="opcao-texto">25 Transporte</span></label>
+                    <label class="opcao"><input type="radio" name="cargo" value="26"><span class="opcao-texto">26 Funcionário ou Secretário de unidade, Recepcionista, Funcionário Administrativo</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Outros</div>
+                    <label class="opcao">
+                        <input type="radio" name="cargo" value="27" id="outro-radio-cargo">
+                        <span class="opcao-texto">27 Outro, por favor especifique:</span>
+                    </label>
+                    <input type="text" class="outro-input" id="outro-cargo" placeholder="Digite seu cargo">
+                </div>
+                <button type="submit" class="btn-proximo">Próximo ➡️</button>
+            </form>
+        </div>
+
+        <!-- TELA 2: UNIDADE -->
+        <div id="tela2" class="tela">
+            <div class="titulo-secao">Sua Unidade/Área de Trabalho</div>
+            <div class="pergunta-numero">2. Pense na sua UNIDADE como a área de trabalho, departamento/serviço ou área clínica do hospital onde você passa a maior parte do seu tempo de trabalho. Qual é a sua unidade ou área de trabalho principal neste hospital?</div>
+            <form onsubmit="event.preventDefault(); salvarUnidade();">
+                <div class="grupo">
+                    <div class="grupo-titulo">Múltiplas Unidades/Nenhuma</div>
+                    <label class="opcao"><input type="radio" name="unidade" value="1" required><span class="opcao-texto">1 Vários setores hospitalares/nenhum setor específico</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Unidades Clínicas/Cirúrgicas</div>
+                    <label class="opcao"><input type="radio" name="unidade" value="2"><span class="opcao-texto">2 Unidade Mista Clínica e Cirúrgica</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="3"><span class="opcao-texto">3 Unidade Clínica (Não-Cirúrgica)</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="4"><span class="opcao-texto">4 Unidade Cirúrgica</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="5"><span class="opcao-texto">5 Central de Material e Esterilização (CME)</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Unidades de Cuidados Especializados</div>
+                    <label class="opcao"><input type="radio" name="unidade" value="6"><span class="opcao-texto">6 Cardiologia</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="7"><span class="opcao-texto">7 Serviço de Emergência, Observação, Curta Permanência</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="8"><span class="opcao-texto">8 Gastroenterologia</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="9"><span class="opcao-texto">9 UTI (adulto - todos os tipos)</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="10"><span class="opcao-texto">10 Maternidade, Obstetrícia, Ginecologia</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="11"><span class="opcao-texto">11 Oncologia, Hematologia</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="12"><span class="opcao-texto">12 Pediatria (incluindo UTI Neonatal e Pediátrica)</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="13"><span class="opcao-texto">13 Psiquiatria e Saúde Mental</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="14"><span class="opcao-texto">14 Pneumologia</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="15"><span class="opcao-texto">15 Reabilitação, Fisiatria</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Serviços Cirúrgicos</div>
+                    <label class="opcao"><input type="radio" name="unidade" value="16"><span class="opcao-texto">16 Anestesiologia</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="17"><span class="opcao-texto">17 Endoscopia, Colonoscopia</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="18"><span class="opcao-texto">18 Pré Operatório, Centro Cirúrgico/Recuperação Pós Anestésica/Pós Operatório</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Serviços Clínicos</div>
+                    <label class="opcao"><input type="radio" name="unidade" value="19"><span class="opcao-texto">19 Patologia/Laboratório</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="20"><span class="opcao-texto">20 Farmácia</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="21"><span class="opcao-texto">21 Radiologia, Exames de Imagem</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="22"><span class="opcao-texto">22 Terapia Respiratória</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="23"><span class="opcao-texto">23 Serviço Social, Planejamento de Alta</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Administração/Gestão</div>
+                    <label class="opcao"><input type="radio" name="unidade" value="24"><span class="opcao-texto">24 Administração, Gestão</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="25"><span class="opcao-texto">25 Serviços Financeiros, Faturamento</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="26"><span class="opcao-texto">26 Recursos Humanos, Treinamento</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="27"><span class="opcao-texto">27 Educação Continuada</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="28"><span class="opcao-texto">28 Tecnologia da Informação, Gestão da Informação em Saúde, Informática Clínica</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="29"><span class="opcao-texto">29 Setor de Arquivo Médico (SAME)</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="30"><span class="opcao-texto">30 Qualidade, Gestão de Risco, Segurança do Paciente</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Serviços de Apoio</div>
+                    <label class="opcao"><input type="radio" name="unidade" value="31"><span class="opcao-texto">31 Recepção, Cadastro</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="32"><span class="opcao-texto">32 Serviço de Nutrição e Dietética</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="33"><span class="opcao-texto">33 Serviço de Limpeza, Hotelaria, Manutenção e Infraestrutura</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="34"><span class="opcao-texto">34 Serviço de Segurança</span></label>
+                    <label class="opcao"><input type="radio" name="unidade" value="35"><span class="opcao-texto">35 Transporte</span></label>
+                </div>
+                <div class="grupo">
+                    <div class="grupo-titulo">Outros</div>
+                    <label class="opcao">
+                        <input type="radio" name="unidade" value="36" id="outro-radio-unidade">
+                        <span class="opcao-texto">36 Outro, por favor, especifique:</span>
+                    </label>
+                    <input type="text" class="outro-input" id="outro-unidade" placeholder="Digite sua unidade">
+                </div>
+                <button type="submit" class="btn-proximo">Próximo ➡️</button>
+            </form>
+        </div>
+
+                <!-- TELA 3: SEÇÃO A -->
+        <div id="tela3" class="tela">
+            <div class="titulo-secao">SEÇÃO A: Sua Unidade/Área de Trabalho</div>
+            <div class="pergunta-numero" id="numero-a">Pergunta 1 de 14</div>
+            <div class="progresso"><div class="progresso-bar" id="barra-a" style="width: 0%"></div></div>
+            <div class="pergunta-texto" id="texto-a"></div>
+            <div style="margin-bottom:15px;font-weight:bold;">O quanto você concorda ou discorda:</div>
+            <div class="opcoes-likert">
+                <label class="opcao-likert" onclick="selecionarA(1)"><input type="radio" name="resp-a" value="1" style="margin-right:10px;"><span style="font-weight:bold;color:#e74c3c;">1</span> - Discordo Totalmente</label>
+                <label class="opcao-likert" onclick="selecionarA(2)"><input type="radio" name="resp-a" value="2" style="margin-right:10px;"><span style="font-weight:bold;color:#e67e22;">2</span> - Discordo</label>
+                <label class="opcao-likert" onclick="selecionarA(3)"><input type="radio" name="resp-a" value="3" style="margin-right:10px;"><span style="font-weight:bold;color:#f39c12;">3</span> - Não concordo nem discordo</label>
+                <label class="opcao-likert" onclick="selecionarA(4)"><input type="radio" name="resp-a" value="4" style="margin-right:10px;"><span style="font-weight:bold;color:#27ae60;">4</span> - Concordo</label>
+                <label class="opcao-likert" onclick="selecionarA(5)"><input type="radio" name="resp-a" value="5" style="margin-right:10px;"><span style="font-weight:bold;color:#16a085;">5</span> - Concordo Totalmente</label>
+                <label class="opcao-likert" onclick="selecionarA(9)" style="background:#ecf0f1;"><input type="radio" name="resp-a" value="9" style="margin-right:10px;"><span style="font-weight:bold;color:#7f8c8d;">9</span> - Não se aplica ou não sei</label>
+            </div>
+            <div style="text-align:center;margin-top:40px;">
+                <button class="btn-proximo" onclick="anteriorA()" id="btn-ant-a" style="background:#7f8c8d;display:none;">⬅️ Anterior</button>
+                <button class="btn-proximo" onclick="proximaA()" id="btn-prox-a">Próxima ➡️</button>
+                <button class="btn-proximo" onclick="finalizarA()" id="btn-fin-a" style="display:none;background:#e74c3c;">Finalizar Seção A ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 4: SEÇÃO B -->
+        <div id="tela4" class="tela">
+            <div class="titulo-secao">SEÇÃO B: Seu Supervisor, Gerente ou Chefe Clínico</div>
+            <div class="pergunta-numero" id="numero-b">Pergunta 1 de 3</div>
+            <div class="progresso"><div class="progresso-bar" id="barra-b" style="width: 0%; background: #e74c3c;"></div></div>
+            <div class="pergunta-texto" id="texto-b"></div>
+            <div style="margin-bottom:15px;font-weight:bold;">O quanto você concorda ou discorda:</div>
+            <div class="opcoes-likert">
+                <label class="opcao-likert" onclick="selecionarB(1)"><input type="radio" name="resp-b" value="1" style="margin-right:10px;"><span style="font-weight:bold;color:#e74c3c;">1</span> - Discordo Totalmente</label>
+                <label class="opcao-likert" onclick="selecionarB(2)"><input type="radio" name="resp-b" value="2" style="margin-right:10px;"><span style="font-weight:bold;color:#e67e22;">2</span> - Discordo</label>
+                <label class="opcao-likert" onclick="selecionarB(3)"><input type="radio" name="resp-b" value="3" style="margin-right:10px;"><span style="font-weight:bold;color:#f39c12;">3</span> - Não concordo nem discordo</label>
+                <label class="opcao-likert" onclick="selecionarB(4)"><input type="radio" name="resp-b" value="4" style="margin-right:10px;"><span style="font-weight:bold;color:#27ae60;">4</span> - Concordo</label>
+                <label class="opcao-likert" onclick="selecionarB(5)"><input type="radio" name="resp-b" value="5" style="margin-right:10px;"><span style="font-weight:bold;color:#16a085;">5</span> - Concordo Totalmente</label>
+                <label class="opcao-likert" onclick="selecionarB(9)" style="background:#ecf0f1;"><input type="radio" name="resp-b" value="9" style="margin-right:10px;"><span style="font-weight:bold;color:#7f8c8d;">9</span> - Não se aplica ou não sei</label>
+            </div>
+            <div style="text-align:center;margin-top:40px;">
+                <button class="btn-proximo" onclick="anteriorB()" id="btn-ant-b" style="background:#7f8c8d;display:none;">⬅️ Anterior</button>
+                <button class="btn-proximo" onclick="proximaB()" id="btn-prox-b">Próxima ➡️</button>
+                <button class="btn-proximo" onclick="finalizarB()" id="btn-fin-b" style="display:none;background:#e74c3c;">Finalizar Seção B ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 5: SEÇÃO C -->
+        <div id="tela5" class="tela">
+            <div class="titulo-secao">SEÇÃO C: Comunicação</div>
+            <div class="pergunta-numero" id="numero-c">Pergunta 1 de 7</div>
+            <div class="progresso"><div class="progresso-bar" id="barra-c" style="width: 0%; background: #9b59b6;"></div></div>
+            <div style="margin-bottom:20px;font-style:italic;color:#555;">Com que frequência as seguintes situações acontecem na sua UNIDADE/ÁREA DE TRABALHO?</div>
+            <div class="pergunta-texto" id="texto-c"></div>
+            <div style="margin-bottom:15px;font-weight:bold;">Selecione a frequência:</div>
+            <div class="opcoes-likert">
+                <label class="opcao-likert" onclick="selecionarC(1)"><input type="radio" name="resp-c" value="1" style="margin-right:10px;"><span style="font-weight:bold;color:#e74c3c;">1</span> - Nunca</label>
+                <label class="opcao-likert" onclick="selecionarC(2)"><input type="radio" name="resp-c" value="2" style="margin-right:10px;"><span style="font-weight:bold;color:#e67e22;">2</span> - Raramente</label>
+                <label class="opcao-likert" onclick="selecionarC(3)"><input type="radio" name="resp-c" value="3" style="margin-right:10px;"><span style="font-weight:bold;color:#f39c12;">3</span> - Às vezes</label>
+                <label class="opcao-likert" onclick="selecionarC(4)"><input type="radio" name="resp-c" value="4" style="margin-right:10px;"><span style="font-weight:bold;color:#27ae60;">4</span> - Quase sempre</label>
+                <label class="opcao-likert" onclick="selecionarC(5)"><input type="radio" name="resp-c" value="5" style="margin-right:10px;"><span style="font-weight:bold;color:#16a085;">5</span> - Sempre</label>
+                <label class="opcao-likert" onclick="selecionarC(9)" style="background:#ecf0f1;"><input type="radio" name="resp-c" value="9" style="margin-right:10px;"><span style="font-weight:bold;color:#7f8c8d;">9</span> - Não se aplica ou não sei</label>
+            </div>
+            <div style="text-align:center;margin-top:40px;">
+                <button class="btn-proximo" onclick="anteriorC()" id="btn-ant-c" style="background:#7f8c8d;display:none;">⬅️ Anterior</button>
+                <button class="btn-proximo" onclick="proximaC()" id="btn-prox-c">Próxima ➡️</button>
+                <button class="btn-proximo" onclick="finalizarC()" id="btn-fin-c" style="display:none;background:#9b59b6;">Finalizar Seção C ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 6: SEÇÃO D -->
+        <div id="tela6" class="tela">
+            <div class="titulo-secao">SEÇÃO D: Notificação de Incidentes de Segurança do Paciente</div>
+            <div class="pergunta-numero" id="numero-d">Pergunta 1 de 3</div>
+            <div class="progresso"><div class="progresso-bar" id="barra-d" style="width: 0%; background: #e67e22;"></div></div>
+            <div style="margin-bottom:20px;font-style:italic;color:#555;">Pense em sua unidade/área de trabalho:</div>
+            <div class="pergunta-texto" id="texto-d"></div>
+            <div class="opcoes-likert" id="opcoes-d">
+                <label class="opcao-likert" onclick="selecionarD(1)"><input type="radio" name="resp-d" value="1" style="margin-right:10px;"><span style="font-weight:bold;color:#e74c3c;">1</span> - Nunca</label>
+                <label class="opcao-likert" onclick="selecionarD(2)"><input type="radio" name="resp-d" value="2" style="margin-right:10px;"><span style="font-weight:bold;color:#e67e22;">2</span> - Raramente</label>
+                <label class="opcao-likert" onclick="selecionarD(3)"><input type="radio" name="resp-d" value="3" style="margin-right:10px;"><span style="font-weight:bold;color:#f39c12;">3</span> - Às vezes</label>
+                <label class="opcao-likert" onclick="selecionarD(4)"><input type="radio" name="resp-d" value="4" style="margin-right:10px;"><span style="font-weight:bold;color:#27ae60;">4</span> - Quase sempre</label>
+                <label class="opcao-likert" onclick="selecionarD(5)"><input type="radio" name="resp-d" value="5" style="margin-right:10px;"><span style="font-weight:bold;color:#16a085;">5</span> - Sempre</label>
+                <label class="opcao-likert" onclick="selecionarD(9)" style="background:#ecf0f1;"><input type="radio" name="resp-d" value="9" style="margin-right:10px;"><span style="font-weight:bold;color:#7f8c8d;">9</span> - Não se aplica ou não sei</label>
+            </div>
+            <div class="opcoes-likert" id="opcoes-d3" style="display:none;">
+                <label class="opcao-likert" onclick="selecionarD('a')"><input type="radio" name="resp-d3" value="a" style="margin-right:10px;">a. Nenhum</label>
+                <label class="opcao-likert" onclick="selecionarD('b')"><input type="radio" name="resp-d3" value="b" style="margin-right:10px;">b. 1 a 2</label>
+                <label class="opcao-likert" onclick="selecionarD('c')"><input type="radio" name="resp-d3" value="c" style="margin-right:10px;">c. 3 a 5</label>
+                <label class="opcao-likert" onclick="selecionarD('d')"><input type="radio" name="resp-d3" value="d" style="margin-right:10px;">d. 6 a 10</label>
+                <label class="opcao-likert" onclick="selecionarD('e')"><input type="radio" name="resp-d3" value="e" style="margin-right:10px;">e. 11 ou mais</label>
+            </div>
+            <div style="text-align:center;margin-top:40px;">
+                <button class="btn-proximo" onclick="anteriorD()" id="btn-ant-d" style="background:#7f8c8d;display:none;">⬅️ Anterior</button>
+                <button class="btn-proximo" onclick="proximaD()" id="btn-prox-d">Próxima ➡️</button>
+                <button class="btn-proximo" onclick="finalizarD()" id="btn-fin-d" style="display:none;background:#e67e22;">Finalizar Seção D ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 7: SEÇÃO E -->
+        <div id="tela7" class="tela">
+            <div class="titulo-secao">SEÇÃO E: Avaliação da Segurança do Paciente</div>
+            <div class="pergunta-numero">Pergunta 1 de 1</div>
+            <div class="progresso"><div class="progresso-bar" style="width: 100%; background: #9b59b6;"></div></div>
+            <div class="pergunta-texto">Como você avaliaria a sua UNIDADE/ÁREA DE TRABALHO com relação à segurança do paciente?</div>
+            <div class="opcoes-likert">
+                <label class="opcao-likert" onclick="selecionarE(1)"><input type="radio" name="resp-e" value="1" style="margin-right:10px;"><span style="font-weight:bold;color:#e74c3c;">1</span> - Ruim</label>
+                <label class="opcao-likert" onclick="selecionarE(2)"><input type="radio" name="resp-e" value="2" style="margin-right:10px;"><span style="font-weight:bold;color:#e67e22;">2</span> - Razoável</label>
+                <label class="opcao-likert" onclick="selecionarE(3)"><input type="radio" name="resp-e" value="3" style="margin-right:10px;"><span style="font-weight:bold;color:#f39c12;">3</span> - Boa</label>
+                <label class="opcao-likert" onclick="selecionarE(4)"><input type="radio" name="resp-e" value="4" style="margin-right:10px;"><span style="font-weight:bold;color:#27ae60;">4</span> - Muito boa</label>
+                <label class="opcao-likert" onclick="selecionarE(5)"><input type="radio" name="resp-e" value="5" style="margin-right:10px;"><span style="font-weight:bold;color:#16a085;">5</span> - Excelente</label>
+            </div>
+            <div style="text-align:center;margin-top:40px;">
+                <button class="btn-proximo" onclick="anteriorE()" style="background:#7f8c8d;">⬅️ Anterior</button>
+                <button class="btn-proximo" onclick="finalizarE()" style="background:#9b59b6;">Finalizar Seção E ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 8: SEÇÃO F -->
+        <div id="tela8" class="tela">
+            <div class="titulo-secao">SEÇÃO F: O Seu Hospital</div>
+            <div class="pergunta-numero" id="numero-f">Pergunta 1 de 6</div>
+	                <div class="progresso"><div class="progresso-bar" id="barra-f" style="width: 0%; background: #34495e;"></div></div>
+            <div style="margin-bottom:20px;font-style:italic;color:#555;">O quanto você concorda ou discorda em relação às seguintes afirmações a respeito do SEU HOSPITAL?</div>
+            <div style="margin-bottom:10px;font-weight:bold;color:#555;">Pense sobre o SEU HOSPITAL:</div>
+            <div class="pergunta-texto" id="texto-f"></div>
+            <div class="opcoes-likert">
+                <label class="opcao-likert" onclick="selecionarF(1)"><input type="radio" name="resp-f" value="1" style="margin-right:10px;"><span style="font-weight:bold;color:#e74c3c;">1</span> - Discordo Totalmente</label>
+                <label class="opcao-likert" onclick="selecionarF(2)"><input type="radio" name="resp-f" value="2" style="margin-right:10px;"><span style="font-weight:bold;color:#e67e22;">2</span> - Discordo</label>
+                <label class="opcao-likert" onclick="selecionarF(3)"><input type="radio" name="resp-f" value="3" style="margin-right:10px;"><span style="font-weight:bold;color:#f39c12;">3</span> - Não concordo nem discordo</label>
+                <label class="opcao-likert" onclick="selecionarF(4)"><input type="radio" name="resp-f" value="4" style="margin-right:10px;"><span style="font-weight:bold;color:#27ae60;">4</span> - Concordo</label>
+                <label class="opcao-likert" onclick="selecionarF(5)"><input type="radio" name="resp-f" value="5" style="margin-right:10px;"><span style="font-weight:bold;color:#16a085;">5</span> - Concordo Totalmente</label>
+                <label class="opcao-likert" onclick="selecionarF(9)" style="background:#ecf0f1;"><input type="radio" name="resp-f" value="9" style="margin-right:10px;"><span style="font-weight:bold;color:#7f8c8d;">9</span> - Não se aplica ou não sei</label>
+            </div>
+            <div style="text-align:center;margin-top:40px;">
+                <button class="btn-proximo" onclick="anteriorF()" id="btn-ant-f" style="background:#7f8c8d;display:none;">⬅️ Anterior</button>
+                <button class="btn-proximo" onclick="proximaF()" id="btn-prox-f">Próxima ➡️</button>
+                <button class="btn-proximo" onclick="finalizarF()" id="btn-fin-f" style="display:none;background:#34495e;">Finalizar Seção F ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 9: PERGUNTAS COMPLEMENTARES -->
+        <div id="tela9" class="tela">
+            <div class="titulo-secao">Perguntas Complementares</div>
+            <div class="progresso"><div class="progresso-bar" style="width: 100%; background: #16a085;"></div></div>
+            
+            <div class="pergunta-texto" style="margin-bottom:15px;"><strong>1. Há quanto tempo você trabalha neste hospital?</strong></div>
+            <div class="opcoes-likert" style="margin-bottom:30px;">
+                <label class="opcao-likert" onclick="selecionarComp('tempo_hospital', 'a')"><input type="radio" name="tempo_hospital" value="a" style="margin-right:10px;">a. Menos que 1 ano</label>
+                <label class="opcao-likert" onclick="selecionarComp('tempo_hospital', 'b')"><input type="radio" name="tempo_hospital" value="b" style="margin-right:10px;">b. 1 a 5 anos</label>
+                <label class="opcao-likert" onclick="selecionarComp('tempo_hospital', 'c')"><input type="radio" name="tempo_hospital" value="c" style="margin-right:10px;">c. 6 a 10 anos</label>
+                <label class="opcao-likert" onclick="selecionarComp('tempo_hospital', 'd')"><input type="radio" name="tempo_hospital" value="d" style="margin-right:10px;">d. 11 anos ou mais</label>
+            </div>
+            
+            <div class="pergunta-texto" style="margin-bottom:15px;"><strong>2. Neste hospital, há quanto tempo você trabalha na sua atual unidade/área de trabalho?</strong></div>
+            <div class="opcoes-likert" style="margin-bottom:30px;">
+                <label class="opcao-likert" onclick="selecionarComp('tempo_unidade', 'a')"><input type="radio" name="tempo_unidade" value="a" style="margin-right:10px;">a. Menos que 1 ano</label>
+                <label class="opcao-likert" onclick="selecionarComp('tempo_unidade', 'b')"><input type="radio" name="tempo_unidade" value="b" style="margin-right:10px;">b. 1 a 5 anos</label>
+                <label class="opcao-likert" onclick="selecionarComp('tempo_unidade', 'c')"><input type="radio" name="tempo_unidade" value="c" style="margin-right:10px;">c. 6 a 10 anos</label>
+                <label class="opcao-likert" onclick="selecionarComp('tempo_unidade', 'd')"><input type="radio" name="tempo_unidade" value="d" style="margin-right:10px;">d. 11 anos ou mais</label>
+            </div>
+            
+            <div class="pergunta-texto" style="margin-bottom:15px;"><strong>3. Normalmente, quantas horas por semana você trabalha neste hospital?</strong></div>
+            <div class="opcoes-likert" style="margin-bottom:30px;">
+                <label class="opcao-likert" onclick="selecionarComp('horas_semana', 'a')"><input type="radio" name="horas_semana" value="a" style="margin-right:10px;">a. Menos que 30 horas por semana</label>
+                <label class="opcao-likert" onclick="selecionarComp('horas_semana', 'b')"><input type="radio" name="horas_semana" value="b" style="margin-right:10px;">b. 30 a 40 horas por semana</label>
+                <label class="opcao-likert" onclick="selecionarComp('horas_semana', 'c')"><input type="radio" name="horas_semana" value="c" style="margin-right:10px;">c. Mais que 40 horas por semana</label>
+            </div>
+            
+            <div class="pergunta-texto" style="margin-bottom:15px;"><strong>4. No seu cargo/função, em geral, você tem interação ou contato direto com os pacientes?</strong></div>
+            <div class="opcoes-likert" style="margin-bottom:30px;">
+                <label class="opcao-likert" onclick="selecionarComp('contato_paciente', 'a')"><input type="radio" name="contato_paciente" value="a" style="margin-right:10px;">a. SIM, em geral, tenho interação ou contato direto com os pacientes</label>
+                <label class="opcao-likert" onclick="selecionarComp('contato_paciente', 'b')"><input type="radio" name="contato_paciente" value="b" style="margin-right:10px;">b. NÃO, em geral, NÃO tenho interação ou contato direto com os pacientes</label>
+            </div>
+            
+            <div style="text-align:center;margin-top:40px;">
+                <button class="btn-proximo" onclick="anteriorComp()" style="background:#7f8c8d;">⬅️ Anterior</button>
+                <button class="btn-proximo" onclick="finalizarComp()" style="background:#16a085;">Finalizar Perguntas Complementares ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 10: SEÇÃO H - COMENTÁRIOS -->
+        <div id="tela10" class="tela">
+            <div class="titulo-secao">SEÇÃO H: Seus Comentários</div>
+            <div class="progresso"><div class="progresso-bar" style="width: 100%; background: #27ae60;"></div></div>
+            <div class="pergunta-texto" style="margin-bottom:20px;">Por favor, sinta-se à vontade para fazer comentários sobre como as coisas são feitas ou como poderiam ser feitas no seu hospital, que podem afetar a segurança do paciente.</div>
+            <textarea id="comentarios" placeholder="Digite seus comentários aqui... (opcional)"></textarea>
+            <div style="text-align:center;margin-top:40px;">
+                <button class="btn-proximo" onclick="anteriorH()" style="background:#7f8c8d;">⬅️ Anterior</button>
+                <button class="btn-proximo" onclick="finalizarTudo()" style="background:#27ae60;">✅ Finalizar Questionário</button>
+            </div>
+        </div>
+
+        <!-- TELA FINAL -->
+        <div id="tela-final" class="tela final-tela">
+            <div style="font-size:60px;margin-bottom:20px;">🎉</div>
+            <h2>Obrigado pela sua participação!</h2>
+            <p>Suas respostas foram registradas com sucesso.</p>
+            <button class="btn-proximo" onclick="location.reload()">📋 Nova Resposta</button>
+        </div>
+
+    </div>
+
+    <script>
+// Relatório específico por Unidade (Pergunta 2)
+async function gerarRelatorioUnidades() {
+    try {
+        const resposta = await fetch('/api/relatorios/unidades');
+        const dados = await resposta.json();
+        
+        console.log('Dados de unidades:', dados);
+        
+        if(!dados || dados.length === 0) {
+            alert('Nenhum dado encontrado!');
+            return;
+        }
+        
+        // Mapeamento completo das 36 unidades
+        const nomesUnidades = {
+            1: 'Vários setores/nenhum específico',
+            2: 'Unidade Mista Clínica e Cirúrgica',
+            3: 'Unidade Clínica (Não-Cirúrgica)',
+            4: 'Unidade Cirúrgica',
+            5: 'Central de Material e Esterilização (CME)',
+            6: 'Cardiologia',
+            7: 'Serviço de Emergência/Observação',
+            8: 'Gastroenterologia',
+            9: 'UTI (adulto - todos os tipos)',
+            10: 'Maternidade/Obstetrícia/Ginecologia',
+            11: 'Oncologia/Hematologia',
+            12: 'Pediatria (incluindo UTI Neonatal/Pediátrica)',
+            13: 'Psiquiatria e Saúde Mental',
+            14: 'Pneumologia',
+            15: 'Reabilitação/Fisiatria',
+            16: 'Anestesiologia',
+            17: 'Endoscopia/Colonoscopia',
+            18: 'Pré Operatório/Centro Cirúrgico/Recuperação',
+            19: 'Patologia/Laboratório',
+            20: 'Farmácia',
+            21: 'Radiologia/Exames de Imagem',
+            22: 'Terapia Respiratória',
+            23: 'Serviço Social/Planejamento de Alta',
+            24: 'Administração/Gestão',
+            25: 'Serviços Financeiros/Faturamento',
+            26: 'Recursos Humanos/Treinamento',
+            27: 'Educação Continuada',
+            28: 'Tecnologia da Informação/Informática Clínica',
+            29: 'Setor de Arquivo Médico (SAME)',
+            30: 'Qualidade/Gestão de Risco/Segurança do Paciente',
+            31: 'Recepção/Cadastro',
+            32: 'Serviço de Nutrição e Dietética',
+            33: 'Serviço de Limpeza/Hotelaria/Manutenção',
+            34: 'Serviço de Segurança',
+            35: 'Transporte',
+            36: 'Outro'
+        };
+        
+        // Calcular total
+        const total = dados.reduce((sum, item) => sum + item.quantidade, 0);
+        
+        // Criar HTML do relatório
+        let html = `
+            <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                <h3 style="color:#2c3e50;margin-bottom:15px;">
+                    📋 Pergunta 2: Qual é a sua unidade ou área de trabalho principal?
+                </h3>
+                <p style="font-size:18px;color:#27ae60;">
+                    <strong>Total de respondentes: ${total} pessoas</strong>
+                </p>
+            </div>
+            
+            <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                <h4 style="margin-bottom:15px;">📊 Distribuição por Unidade/Área de Trabalho</h4>
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#34495e;color:white;">
+                            <th style="padding:12px;text-align:left;">#</th>
+                            <th style="padding:12px;text-align:left;">Unidade/Área</th>
+                            <th style="padding:12px;text-align:center;">Quantidade</th>
+                            <th style="padding:12px;text-align:center;">Percentual</th>
+                            <th style="padding:12px;text-align:left;">Visual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        // Cores variadas
+        const cores = [
+            '#e74c3c', '#e67e22', '#f39c12', '#27ae60', '#16a085',
+            '#3498db', '#9b59b6', '#34495e', '#1abc9c', '#2ecc71',
+            '#f1c40f', '#e74c3c', '#95a5a6', '#d35400', '#c0392b',
+            '#7f8c8d', '#2c3e50', '#8e44ad', '#2980b9', '#27ae60',
+            '#16a085', '#f39c12', '#e67e22', '#e74c3c', '#c0392b',
+            '#2c3e50', '#95a5a6', '#e74c3c', '#3498db', '#9b59b6',
+            '#1abc9c', '#f1c40f', '#e67e22', '#34495e', '#16a085', '#8e44ad'
+        ];
+        
+        dados.forEach((item, index) => {
+            const percentual = ((item.quantidade / total) * 100).toFixed(1);
+            const nomeUnidade = nomesUnidades[item.unidade] || `Unidade ${item.unidade}`;
+            const cor = cores[index % cores.length];
+            
+            html += `
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;font-weight:bold;">${index + 1}</td>
+                    <td style="padding:10px;">${nomeUnidade}</td>
+                    <td style="padding:10px;text-align:center;font-weight:bold;color:${cor};">${item.quantidade}</td>
+                    <td style="padding:10px;text-align:center;">${percentual}%</td>
+                    <td style="padding:10px;">
+                        <div style="background:#ecf0f1;height:20px;border-radius:10px;position:relative;">
+                            <div style="background:${cor};height:100%;border-radius:10px;width:${percentual}%;"></div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        // Gráfico de pizza
+        html += `
+            <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                <h4 style="margin-bottom:15px;">📈 Gráfico de Distribuição</h4>
+                <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:300px;">
+                        <canvas id="grafico-unidades"></canvas>
+                    </div>
+                    <div style="flex:1;min-width:300px;">
+                        <h5 style="margin-bottom:10px;">Resumo:</h5>
+                        <ul style="list-style:none;padding:0;max-height:400px;overflow-y:auto;">
+                            ${dados.map((item, idx) => `
+                                <li style="margin:8px 0;display:flex;align-items:center;">
+                                    <span style="display:inline-block;width:15px;height:15px;background:${cores[idx % cores.length]};margin-right:10px;border-radius:3px;"></span>
+                                    <span style="flex:1;font-size:12px;">${nomesUnidades[item.unidade] || 'Unidade '+item.unidade}</span>
+                                    <span style="font-weight:bold;">${item.quantidade}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Mostrar em modal
+        const modal = document.createElement('div');
+        modal.id = 'modal-unidades';
+        modal.style.cssText = `
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.8);z-index:9999;overflow:auto;
+        `;
+        modal.innerHTML = `
+            <div style="max-width:1000px;margin:50px auto;background:white;padding:30px;border-radius:10px;position:relative;">
+                <button onclick="document.getElementById('modal-unidades').remove()" 
+                    style="position:absolute;top:10px;right:10px;background:#e74c3c;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;font-size:18px;">
+                    ✕ Fechar
+                </button>
+                ${html}
+            </div>
+        `;
+        
+        // Remover modal anterior se existir
+        const anterior = document.getElementById('modal-unidades');
+        if(anterior) anterior.remove();
+        
+        document.body.appendChild(modal);
+        
+        // Criar gráfico de pizza
+        const ctx = document.getElementById('grafico-unidades').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: dados.map(d => {
+                    const nome = nomesUnidades[d.unidade] || `Unidade ${d.unidade}`;
+                    return nome.length > 30 ? nome.substring(0,30)+'...' : nome;
+                }),
+                datasets: [{
+                    data: dados.map(d => d.quantidade),
+                    backgroundColor: dados.map((_, idx) => cores[idx % cores.length]),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { 
+                            boxWidth: 12, 
+                            padding: 10,
+                            font: { size: 10 }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: `Distribuição por Unidade (Total: ${total})`
+                    }
+                }
+            }
+        });
+        
+    } catch(e) {
+        console.error('Erro:', e);
+        alert('Erro ao gerar relatório: ' + e.message);
+    }
+}
+
+
+// Relatório específico por Cargo (Pergunta 1)
+async function gerarRelatorioCargos() {
+    try {
+        const resposta = await fetch('/api/relatorios/cargos');
+        const dados = await resposta.json();
+        
+        console.log('Dados de cargos:', dados);
+        
+        if(!dados || dados.length === 0) {
+            alert('Nenhum dado encontrado!');
+            return;
+        }
+        
+        // Mapeamento de cargos
+        const nomesCargos = {
+            1: 'Enfermeiro',
+            2: 'Técnico de Enfermagem',
+            3: 'Auxiliar de Enfermagem',
+            4: 'Residente de Enfermagem',
+            5: 'Estagiário de Enfermagem',
+            6: 'Médico',
+            7: 'Médico Hospitalista',
+            8: 'Residente de Medicina',
+            9: 'Interno de Medicina',
+            10: 'Nutricionista',
+            11: 'Farmacêutico/Técnico/Auxiliar',
+            12: 'Fisioterapeuta/Terapeuta/Fonoaudiólogo',
+            13: 'Psicólogo',
+            14: 'Bioquímico',
+            15: 'Assistente Social',
+            16: 'Dentista',
+            17: 'Técnico (Lab/Rx)',
+            18: 'Supervisor/Gerente/Chefe',
+            19: 'Alta Liderança',
+            20: 'Hotelaria/Manutenção',
+            21: 'Serviço Nutrição',
+            22: 'Serviço Limpeza',
+            23: 'TI/Informática',
+            24: 'Segurança',
+            25: 'Transporte',
+            26: 'Administrativo',
+            27: 'Outro'
+        };
+        
+        // Calcular total
+        const total = dados.reduce((sum, item) => sum + item.quantidade, 0);
+        
+        // Criar HTML do relatório
+        let html = `
+            <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                <h3 style="color:#2c3e50;margin-bottom:15px;">
+                    📋 Pergunta 1: Qual é o seu cargo nesse hospital?
+                </h3>
+                <p style="font-size:18px;color:#27ae60;">
+                    <strong>Total de respondentes: ${total} pessoas</strong>
+                </p>
+            </div>
+            
+            <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                <h4 style="margin-bottom:15px;">📊 Distribuição por Cargo</h4>
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#34495e;color:white;">
+                            <th style="padding:12px;text-align:left;">#</th>
+                            <th style="padding:12px;text-align:left;">Cargo</th>
+                            <th style="padding:12px;text-align:center;">Quantidade</th>
+                            <th style="padding:12px;text-align:center;">Percentual</th>
+                            <th style="padding:12px;text-align:left;">Visual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        // Cores para cada cargo
+        const cores = [
+            '#e74c3c', '#e67e22', '#f39c12', '#27ae60', '#16a085',
+            '#3498db', '#9b59b6', '#34495e', '#1abc9c', '#2ecc71',
+            '#f1c40f', '#e74c3c', '#95a5a6', '#d35400', '#c0392b',
+            '#7f8c8d', '#2c3e50', '#8e44ad', '#2980b9', '#27ae60',
+            '#16a085', '#f39c12', '#e67e22', '#e74c3c', '#c0392b', '#2c3e50', '#95a5a6'
+        ];
+        
+        dados.forEach((item, index) => {
+            const percentual = ((item.quantidade / total) * 100).toFixed(1);
+            const nomeCargo = nomesCargos[item.cargo] || `Cargo ${item.cargo}`;
+            const cor = cores[index % cores.length];
+            
+            html += `
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;font-weight:bold;">${index + 1}</td>
+                    <td style="padding:10px;">${nomeCargo}</td>
+                    <td style="padding:10px;text-align:center;font-weight:bold;color:${cor};">${item.quantidade}</td>
+                    <td style="padding:10px;text-align:center;">${percentual}%</td>
+                    <td style="padding:10px;">
+                        <div style="background:#ecf0f1;height:20px;border-radius:10px;position:relative;">
+                            <div style="background:${cor};height:100%;border-radius:10px;width:${percentual}%;"></div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        // Gráfico de pizza
+        html += `
+            <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                <h4 style="margin-bottom:15px;">📈 Gráfico de Distribuição</h4>
+                <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:300px;">
+                        <canvas id="grafico-cargos"></canvas>
+                    </div>
+                    <div style="flex:1;min-width:300px;">
+                        <h5 style="margin-bottom:10px;">Resumo:</h5>
+                        <ul style="list-style:none;padding:0;">
+                            ${dados.map((item, idx) => `
+                                <li style="margin:8px 0;display:flex;align-items:center;">
+                                    <span style="display:inline-block;width:15px;height:15px;background:${cores[idx % cores.length]};margin-right:10px;border-radius:3px;"></span>
+                                    <span style="flex:1;">${nomesCargos[item.cargo] || 'Cargo '+item.cargo}</span>
+                                    <span style="font-weight:bold;">${item.quantidade}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Mostrar resultado em modal ou nova tela
+        const modal = document.createElement('div');
+        modal.id = 'modal-cargos';
+        modal.style.cssText = `
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.8);z-index:9999;overflow:auto;
+        `;
+        modal.innerHTML = `
+            <div style="max-width:1000px;margin:50px auto;background:white;padding:30px;border-radius:10px;position:relative;">
+                <button onclick="document.getElementById('modal-cargos').remove()" 
+                    style="position:absolute;top:10px;right:10px;background:#e74c3c;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;font-size:18px;">
+                    ✕ Fechar
+                </button>
+                ${html}
+            </div>
+        `;
+        
+        // Remover modal anterior se existir
+        const anterior = document.getElementById('modal-cargos');
+        if(anterior) anterior.remove();
+        
+        document.body.appendChild(modal);
+        
+        // Criar gráfico de pizza
+        const ctx = document.getElementById('grafico-cargos').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: dados.map(d => nomesCargos[d.cargo] || `Cargo ${d.cargo}`),
+                datasets: [{
+                    data: dados.map(d => d.quantidade),
+                    backgroundColor: dados.map((_, idx) => cores[idx % cores.length]),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 15, padding: 15 }
+                    },
+                    title: {
+                        display: true,
+                        text: `Distribuição por Cargo (Total: ${total})`
+                    }
+                }
+            }
+        });
+        
+    } catch(e) {
+        console.error('Erro:', e);
+        alert('Erro ao gerar relatório: ' + e.message);
+    }
+}
+
+        // Dados das perguntas
+        const perguntasA = [
+            "1. Nesta unidade, trabalhamos juntos como uma equipe integrada.",
+            "2. Nesta unidade, temos profissionais suficientes para lidar com a carga de trabalho.",
+            "3. Os profissionais desta unidade trabalham mais horas do que seria o desejável para prestar o melhor cuidado ao paciente.",
+            "4. Esta unidade revisa regularmente os processos de trabalho, para determinar se são necessárias mudanças para melhorar a segurança do paciente.",
+            "5. Esta unidade depende demasiado de profissionais com contrato terceirizado ou contratado por qualquer outro regime temporário.",
+            "6. Nesta unidade, os profissionais sentem que seus erros/falhas podem ser usados contra eles.",
+            "7. Quando um incidente é notificado nesta unidade, a impressão que se tem é que a pessoa está sendo notificada e não o problema.",
+            "8. Durante períodos de sobrecarga de trabalho, os profissionais desta unidade ajudam uns aos outros.",
+            "9. Há problema com comportamento desrespeitoso por parte daqueles que trabalham nesta unidade.",
+            "10. Quando os profissionais cometem erros, esta unidade se concentra no aprendizado, ao invés de culpar os indivíduos.",
+            "11. O ritmo de trabalho nesta unidade é tão intenso que afeta negativamente a segurança do paciente.",
+            "12. Nesta unidade, as mudanças para melhorar a segurança do paciente são avaliadas para verificar se elas estão funcionando bem.",
+            "13. Nesta unidade, falta apoio aos profissionais envolvidos em erros/falhas que comprometem a segurança do paciente.",
+            "14. Esta unidade permite que os mesmos problemas de segurança do paciente continuem ocorrendo."
+        ];
+        
+        const perguntasB = [
+            "1. Meu supervisor, gerente ou chefe de equipe/clínica considera seriamente as sugestões dos profissionais para melhorar a segurança do paciente.",
+            "2. Meu supervisor, gerente ou chefe de equipe/clínica quer que trabalhemos mais rápido nos horários de demanda intensa de trabalho, mesmo que isso implique em 'pular etapas'.",
+            "3. Meu supervisor, gerente ou chefe de equipe/clínica adota medidas para resolver as questões de segurança do paciente que lhe são apresentadas."
+        ];
+        
+        const perguntasC = [
+            "1. Somos informados sobre os erros/incidentes de segurança que acontecem nesta unidade.",
+            "2. Quando acontecem erros/incidentes de segurança nessa unidade, discutimos maneiras de evitar que voltem a acontecer.",
+            "3. Nesta unidade, somos informados sobre as mudanças realizadas com base nos relatórios de notificação de incidentes.",
+            "4. Nesta unidade, os profissionais se falam abertamente quando veem algo que pode afetar negativamente o cuidado do paciente.",
+            "5. Quando os profissionais desta unidade veem alguém com mais autoridade fazendo algo inseguro para os pacientes, eles falam abertamente.",
+            "6. Quando os profissionais desta unidade se manifestam, as pessoas com mais autoridade estão abertas às suas preocupações em relação à segurança do paciente.",
+            "7. Nesta unidade, os profissionais têm receio de fazer perguntas, quando algo não lhes parece certo."
+        ];
+        
+        const perguntasD = [
+            "1. Quando um incidente é detectado e corrigido antes de atingir o paciente, com que frequência ele é notificado?",
+            "2. Quando um incidente atinge o paciente e poderia ter lhe causado dano, mas não lhe causou, com que frequência ele é notificado?",
+            "3. Nos últimos doze meses, quantos incidentes relacionados à segurança do paciente você notificou?"
+        ];
+        
+        const perguntasF = [
+            "1. As ações da gestão do hospital demonstram que a segurança do paciente tem alta prioridade.",
+            "2. A gestão do hospital fornece recursos adequados para melhorar a segurança do paciente.",
+            "3. A gestão do hospital parece ter interesse na segurança do paciente somente após a ocorrência de um evento adverso.",
+            "4. Quando pacientes são transferidos de uma unidade para outra, informações importantes sobre o seu cuidado são frequentemente perdidas.",
+            "5. Durante as mudanças de turno/plantão, informações importantes sobre o cuidado do paciente frequentemente são omitidas.",
+            "6. Durante as mudanças de turno/plantão, há tempo suficiente para trocar todas as informações importantes para o cuidado do paciente."
+        ];
+        
+        let dados = { cargo: '', unidade: '', respostasA: {}, respostasB: {}, respostasC: {}, respostasD: {}, respostasE: {}, respostasF: {}, complementares: {}, comentarios: '' };
+        let atualA = 0, atualB = 0, atualC = 0, atualD = 0, atualF = 0;
+        
+        function irPara(tela) {
+            document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+            document.getElementById(tela).classList.add('ativa');
+            window.scrollTo(0,0);
+        }
+        
+        function salvarCargo() {
+            const selecionado = document.querySelector('input[name="cargo"]:checked');
+            if(!selecionado) return alert('Selecione um cargo!');
+            dados.cargo = selecionado.value;
+            if(dados.cargo === '27') {
+                const outro = document.getElementById('outro-cargo').value;
+                if(!outro) return alert('Especifique seu cargo!');
+                dados.cargoOutro = outro;
+            }
+            irPara('tela2');
+        }
+        
+        function salvarUnidade() {
+            const selecionado = document.querySelector('input[name="unidade"]:checked');
+            if(!selecionado) return alert('Selecione uma unidade!');
+                        dados.unidade = selecionado.value;
+            if(dados.unidade === '36') {
+                const outro = document.getElementById('outro-unidade').value;
+                if(!outro) return alert('Especifique sua unidade!');
+                dados.unidadeOutro = outro;
+            }
+            mostrarA();
+            irPara('tela3');
+        }
+        
+        // Seção A
+        function mostrarA() {
+            document.getElementById('numero-a').textContent = `Pergunta ${atualA + 1} de 14`;
+            document.getElementById('texto-a').textContent = perguntasA[atualA];
+            document.getElementById('barra-a').style.width = ((atualA + 1) / 14 * 100) + '%';
+            document.querySelectorAll('input[name="resp-a"]').forEach(r => r.checked = false);
+            const respSalva = dados.respostasA['A' + (atualA + 1)];
+            if(respSalva) document.querySelector(`input[name="resp-a"][value="${respSalva}"]`).checked = true;
+            document.getElementById('btn-ant-a').style.display = atualA > 0 ? 'inline' : 'none';
+            document.getElementById('btn-prox-a').style.display = atualA < 13 ? 'inline' : 'none';
+            document.getElementById('btn-fin-a').style.display = atualA === 13 ? 'inline' : 'none';
+        }
+        
+        function selecionarA(valor) {
+            document.querySelectorAll('input[name="resp-a"]').forEach(r => r.checked = false);
+            document.querySelector(`input[name="resp-a"][value="${valor}"]`).checked = true;
+        }
+        
+        function proximaA() {
+            const selecionado = document.querySelector('input[name="resp-a"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasA['A' + (atualA + 1)] = selecionado.value;
+            if(atualA < 13) { atualA++; mostrarA(); }
+        }
+        
+        function anteriorA() {
+            if(atualA > 0) { atualA--; mostrarA(); }
+        }
+        
+        function finalizarA() {
+            const selecionado = document.querySelector('input[name="resp-a"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasA['A14'] = selecionado.value;
+            mostrarB();
+            irPara('tela4');
+        }
+        
+        // Seção B
+        function mostrarB() {
+            document.getElementById('numero-b').textContent = `Pergunta ${atualB + 1} de 3`;
+            document.getElementById('texto-b').textContent = perguntasB[atualB];
+            document.getElementById('barra-b').style.width = ((atualB + 1) / 3 * 100) + '%';
+            document.querySelectorAll('input[name="resp-b"]').forEach(r => r.checked = false);
+            const respSalva = dados.respostasB['B' + (atualB + 1)];
+            if(respSalva) document.querySelector(`input[name="resp-b"][value="${respSalva}"]`).checked = true;
+            document.getElementById('btn-ant-b').style.display = atualB > 0 ? 'inline' : 'none';
+            document.getElementById('btn-prox-b').style.display = atualB < 2 ? 'inline' : 'none';
+            document.getElementById('btn-fin-b').style.display = atualB === 2 ? 'inline' : 'none';
+        }
+        
+        function selecionarB(valor) {
+            document.querySelectorAll('input[name="resp-b"]').forEach(r => r.checked = false);
+            document.querySelector(`input[name="resp-b"][value="${valor}"]`).checked = true;
+        }
+        
+        function proximaB() {
+            const selecionado = document.querySelector('input[name="resp-b"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasB['B' + (atualB + 1)] = selecionado.value;
+            if(atualB < 2) { atualB++; mostrarB(); }
+        }
+        
+        function anteriorB() {
+            if(atualB > 0) { atualB--; mostrarB(); }
+        }
+        
+        function finalizarB() {
+            const selecionado = document.querySelector('input[name="resp-b"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasB['B3'] = selecionado.value;
+            mostrarC();
+            irPara('tela5');
+        }
+        
+        // Seção C
+        function mostrarC() {
+            document.getElementById('numero-c').textContent = `Pergunta ${atualC + 1} de 7`;
+            document.getElementById('texto-c').textContent = perguntasC[atualC];
+            document.getElementById('barra-c').style.width = ((atualC + 1) / 7 * 100) + '%';
+            document.querySelectorAll('input[name="resp-c"]').forEach(r => r.checked = false);
+            const respSalva = dados.respostasC['C' + (atualC + 1)];
+            if(respSalva) document.querySelector(`input[name="resp-c"][value="${respSalva}"]`).checked = true;
+            document.getElementById('btn-ant-c').style.display = atualC > 0 ? 'inline' : 'none';
+            document.getElementById('btn-prox-c').style.display = atualC < 6 ? 'inline' : 'none';
+            document.getElementById('btn-fin-c').style.display = atualC === 6 ? 'inline' : 'none';
+        }
+        
+        function selecionarC(valor) {
+            document.querySelectorAll('input[name="resp-c"]').forEach(r => r.checked = false);
+            document.querySelector(`input[name="resp-c"][value="${valor}"]`).checked = true;
+        }
+        
+        function proximaC() {
+            const selecionado = document.querySelector('input[name="resp-c"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasC['C' + (atualC + 1)] = selecionado.value;
+            if(atualC < 6) { atualC++; mostrarC(); }
+        }
+        
+        function anteriorC() {
+            if(atualC > 0) { atualC--; mostrarC(); }
+        }
+        
+        function finalizarC() {
+            const selecionado = document.querySelector('input[name="resp-c"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasC['C7'] = selecionado.value;
+            mostrarD();
+            irPara('tela6');
+        }
+        
+        // Seção D
+        function mostrarD() {
+            document.getElementById('numero-d').textContent = `Pergunta ${atualD + 1} de 3`;
+            document.getElementById('texto-d').textContent = perguntasD[atualD];
+            document.getElementById('barra-d').style.width = ((atualD + 1) / 3 * 100) + '%';
+            
+            if(atualD === 2) {
+                document.getElementById('opcoes-d').style.display = 'none';
+                document.getElementById('opcoes-d3').style.display = 'flex';
+                document.querySelectorAll('input[name="resp-d3"]').forEach(r => r.checked = false);
+                const respSalva = dados.respostasD['D3'];
+                if(respSalva) document.querySelector(`input[name="resp-d3"][value="${respSalva}"]`).checked = true;
+            } else {
+                document.getElementById('opcoes-d').style.display = 'flex';
+                document.getElementById('opcoes-d3').style.display = 'none';
+                document.querySelectorAll('input[name="resp-d"]').forEach(r => r.checked = false);
+                const respSalva = dados.respostasD['D' + (atualD + 1)];
+                if(respSalva) document.querySelector(`input[name="resp-d"][value="${respSalva}"]`).checked = true;
+            }
+            
+            document.getElementById('btn-ant-d').style.display = atualD > 0 ? 'inline' : 'none';
+            document.getElementById('btn-prox-d').style.display = atualD < 2 ? 'inline' : 'none';
+            document.getElementById('btn-fin-d').style.display = atualD === 2 ? 'inline' : 'none';
+        }
+        
+        function selecionarD(valor) {
+            if(atualD === 2) {
+                document.querySelectorAll('input[name="resp-d3"]').forEach(r => r.checked = false);
+                document.querySelector(`input[name="resp-d3"][value="${valor}"]`).checked = true;
+            } else {
+                document.querySelectorAll('input[name="resp-d"]').forEach(r => r.checked = false);
+                document.querySelector(`input[name="resp-d"][value="${valor}"]`).checked = true;
+            }
+        }
+        
+        function proximaD() {
+            let selecionado;
+            if(atualD === 2) selecionado = document.querySelector('input[name="resp-d3"]:checked');
+            else selecionado = document.querySelector('input[name="resp-d"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasD['D' + (atualD + 1)] = selecionado.value;
+            if(atualD < 2) { atualD++; mostrarD(); }
+        }
+        
+        function anteriorD() {
+            if(atualD > 0) { atualD--; mostrarD(); }
+        }
+        
+        function finalizarD() {
+            let selecionado;
+            if(atualD === 2) selecionado = document.querySelector('input[name="resp-d3"]:checked');
+            else selecionado = document.querySelector('input[name="resp-d"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasD['D3'] = selecionado.value;
+            irPara('tela7');
+        }
+        
+        // Seção E
+        function selecionarE(valor) {
+            document.querySelectorAll('input[name="resp-e"]').forEach(r => r.checked = false);
+            document.querySelector(`input[name="resp-e"][value="${valor}"]`).checked = true;
+        }
+        
+        function anteriorE() {
+            irPara('tela6');
+        }
+        
+        function finalizarE() {
+            const selecionado = document.querySelector('input[name="resp-e"]:checked');
+            if(!selecionado) return alert('Selecione uma avaliação!');
+            dados.respostasE = selecionado.value;
+            mostrarF();
+            irPara('tela8');
+        }
+        
+        // Seção F
+        function mostrarF() {
+            document.getElementById('numero-f').textContent = `Pergunta ${atualF + 1} de 6`;
+            document.getElementById('texto-f').textContent = perguntasF[atualF];
+            document.getElementById('barra-f').style.width = ((atualF + 1) / 6 * 100) + '%';
+            document.querySelectorAll('input[name="resp-f"]').forEach(r => r.checked = false);
+            const respSalva = dados.respostasF['F' + (atualF + 1)];
+            if(respSalva) document.querySelector(`input[name="resp-f"][value="${respSalva}"]`).checked = true;
+            document.getElementById('btn-ant-f').style.display = atualF > 0 ? 'inline' : 'none';
+            document.getElementById('btn-prox-f').style.display = atualF < 5 ? 'inline' : 'none';
+            document.getElementById('btn-fin-f').style.display = atualF === 5 ? 'inline' : 'none';
+        }
+        
+        function selecionarF(valor) {
+            document.querySelectorAll('input[name="resp-f"]').forEach(r => r.checked = false);
+            document.querySelector(`input[name="resp-f"][value="${valor}"]`).checked = true;
+        }
+        
+        function proximaF() {
+            const selecionado = document.querySelector('input[name="resp-f"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasF['F' + (atualF + 1)] = selecionado.value;
+            if(atualF < 5) { atualF++; mostrarF(); }
+        }
+        
+        function anteriorF() {
+            if(atualF > 0) { atualF--; mostrarF(); }
+            else irPara('tela7');
+        }
+        
+        function finalizarF() {
+            const selecionado = document.querySelector('input[name="resp-f"]:checked');
+            if(!selecionado) return alert('Selecione uma resposta!');
+            dados.respostasF['F6'] = selecionado.value;
+            irPara('tela9');
+        }
+        
+        // Complementares
+        function selecionarComp(campo, valor) {
+            document.querySelectorAll(`input[name="${campo}"]`).forEach(r => r.checked = false);
+            document.querySelector(`input[name="${campo}"][value="${valor}"]`).checked = true;
+            dados.complementares[campo] = valor;
+        }
+        
+        function anteriorComp() {
+            irPara('tela8');
+        }
+        
+        function finalizarComp() {
+            if(!dados.complementares.tempo_hospital) return alert('Responda a pergunta 1!');
+            if(!dados.complementares.tempo_unidade) return alert('Responda a pergunta 2!');
+            if(!dados.complementares.horas_semana) return alert('Responda a pergunta 3!');
+            if(!dados.complementares.contato_paciente) return alert('Responda a pergunta 4!');
+            irPara('tela10');
+        }
+        
+        // Seção H
+        function anteriorH() {
+            irPara('tela9');
+        }
+        
+        async function finalizarTudo() {
+            dados.comentarios = document.getElementById('comentarios').value;
+            const respostasFinais = {
+                ...dados.respostasA, ...dados.respostasB, ...dados.respostasC, ...dados.respostasD,
+                avaliacao_seguranca: dados.respostasE, ...dados.respostasF,
+                tempo_hospital: dados.complementares.tempo_hospital,
+                tempo_unidade: dados.complementares.tempo_unidade,
+                horas_semana: dados.complementares.horas_semana,
+                contato_paciente: dados.complementares.contato_paciente,
+                comentarios: dados.comentarios
+            };
+            try {
+                const resposta = await fetch('/api/resposta', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        cargo: parseInt(dados.cargo),
+                        unidade: parseInt(dados.unidade),
+                        respostas: respostasFinais
+                    })
+                });
+                if(resposta.ok) irPara('tela-final');
+                else throw new Error('Erro');
+            } catch(e) {
+                localStorage.setItem('respostaHSOPSC', JSON.stringify(dados));
+                irPara('tela-final');
+            }
+        }
+        
+        // Event listeners para "Outro"
+        document.getElementById('outro-radio-cargo').addEventListener('change', function() {
+            document.getElementById('outro-cargo').style.display = 'block';
+        });
+        document.getElementById('outro-radio-unidade').addEventListener('change', function() {
+            document.getElementById('outro-unidade').style.display = 'block';
+        });
+        document.querySelectorAll('input[name="cargo"]').forEach(r => {
+            if(r.id !== 'outro-radio-cargo') r.addEventListener('change', () => {
+                document.getElementById('outro-cargo').style.display = 'none';
+            });
+        });
+        document.querySelectorAll('input[name="unidade"]').forEach(r => {
+            if(r.id !== 'outro-radio-unidade') r.addEventListener('change', () => {
+                document.getElementById('outro-unidade').style.display = 'none';
+            });
+        });
+        // Variável para o gráfico
+        let graficoAtual = null;
+        
+        // Mapeamento de textos das respostas
+        const textosRespostas = {
+            '1': 'Discordo Totalmente / Nunca / Ruim / Nenhum',
+            '2': 'Discordo / Raramente / Razoável / 1 a 2',
+            '3': 'Neutro / Às vezes / Boa / 3 a 5',
+            '4': 'Concordo / Quase sempre / Muito boa / 6 a 10',
+            '5': 'Concordo Totalmente / Sempre / Excelente / 11+',
+            '9': 'Não se aplica / Não sei',
+            'a': 'Nenhum (D3)',
+            'b': '1 a 2 (D3)',
+            'c': '3 a 5 (D3)',
+            'd': '6 a 10 (D3)',
+            'e': '11 ou mais (D3)'
+        };
+        
+        async function gerarRelatorio() {
+    const cargo = document.getElementById('filtro-cargo').value;
+    const pergunta = document.getElementById('filtro-pergunta').value;
+    
+    if(!pergunta) {
+        alert('Selecione uma pergunta!');
+        return;
+    }
+    
+    try {
+        const url = `/api/relatorios?pergunta=${pergunta}${cargo ? '&cargo='+cargo : ''}`;
+        const resposta = await fetch(url);
+        const dados = await resposta.json();
+        
+        console.log('Dados brutos:', dados);
+        
+        // Processar dados - lidar com JSON escapado
+        const contagem = {};
+        let total = 0;
+        
+        dados.forEach((item, index) => {
+            try {
+                // O respostas vem como string JSON, precisa parse
+                let respostasObj;
+                
+                if (typeof item.respostas === 'string') {
+                    respostasObj = JSON.parse(item.respostas);
+                } else {
+                    respostasObj = item.respostas;
+                }
+                
+                console.log(`Item ${index}:`, respostasObj);
+                
+                const valor = respostasObj[pergunta];
+                
+                if(valor !== undefined && valor !== null && valor !== '') {
+                    contagem[valor] = (contagem[valor] || 0) + 1;
+                    total++;
+                    console.log(`  -> ${pergunta} = ${valor}`);
+                } else {
+                    console.log(`  -> ${pergunta} não encontrado`);
+                }
+            } catch(e) {
+                console.error(`Erro no item ${index}:`, e, item);
+            }
+        });
+        
+        console.log('Contagem:', contagem, 'Total:', total);
+        
+        if(total === 0) {
+            document.getElementById('resultado-relatorio').style.display = 'block';
+            document.getElementById('corpo-tabela').innerHTML = `
+                <tr>
+                    <td colspan="3" style="text-align:center;padding:20px;">
+                        <strong>Nenhuma resposta válida para ${pergunta}</strong><br>
+                        <small>Verifique no console (F12) o debug</small>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Ordenar: 1,2,3,4,5,9,a,b,c,d,e
+        const ordemValores = ['1','2','3','4','5','9','a','b','c','d','e'];
+        const ordenado = Object.entries(contagem).sort((a,b) => {
+            const idxA = ordemValores.indexOf(a[0]);
+            const idxB = ordemValores.indexOf(b[0]);
+            return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+        });
+        
+        // Preencher tabela
+        let htmlTabela = '';
+        ordenado.forEach(([resposta, qtd]) => {
+            const percentual = ((qtd/total)*100).toFixed(1);
+            const texto = textosRespostas[resposta] || `Resposta ${resposta}`;
+            htmlTabela += `
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;">${texto}</td>
+                    <td style="padding:10px;text-align:center;font-weight:bold;">${qtd}</td>
+                    <td style="padding:10px;text-align:center;">${percentual}%</td>
+                </tr>
+            `;
+        });
+        document.getElementById('corpo-tabela').innerHTML = htmlTabela;
+        
+        // Criar gráfico
+        const ctx = document.getElementById('grafico-relatorio').getContext('2d');
+        if(graficoAtual) graficoAtual.destroy();
+        
+        const cores = {
+            '1': '#e74c3c', '2': '#e67e22', '3': '#f39c12', 
+            '4': '#27ae60', '5': '#16a085', '9': '#95a5a6',
+            'a': '#3498db', 'b': '#9b59b6', 'c': '#34495e', 
+            'd': '#2c3e50', 'e': '#7f8c8d'
+        };
+        
+        graficoAtual = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ordenado.map(([resp]) => textosRespostas[resp] || resp),
+                datasets: [{
+                    label: 'Quantidade',
+                    data: ordenado.map(([,qtd]) => qtd),
+                    backgroundColor: ordenado.map(([resp]) => cores[resp] || '#3498db'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: `Respostas para: ${pergunta} (Total: ${total})`,
+                        font: { size: 16 }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+        
+        // Resumo simples
+        document.getElementById('detalhe-cargos').innerHTML = `
+            <p style="text-align:center;">
+                <strong>Total de respostas analisadas: ${dados.length}</strong><br>
+                <strong>Respostas válidas para ${pergunta}: ${total}</strong>
+            </p>
+        `;
+        
+        document.getElementById('resultado-relatorio').style.display = 'block';
+        
+    } catch(e) {
+        console.error('Erro:', e);
+        alert('Erro: ' + e.message);
+    }
+}
+    </script>
+                    
+                     
+            <div id="resultado-relatorio" style="display:none;">
+                <h3 style="margin-bottom:15px;color:#2c3e50;">📈 Resultados</h3>
+                
+                <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                    <h4 style="margin-bottom:10px;">Resumo por Resposta</h4>
+                    <table style="width:100%;border-collapse:collapse;" id="tabela-resumo">
+                        <thead>
+                            <tr style="background:#34495e;color:white;">
+                                <th style="padding:12px;text-align:left;">Resposta</th>
+                                <th style="padding:12px;text-align:center;">Quantidade</th>
+                                <th style="padding:12px;text-align:center;">Percentual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-tabela"></tbody>
+                    </table>
+                </div>
+                
+                <div style="background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                    <h4 style="margin-bottom:10px;">📊 Gráfico</h4>
+                    <div style="height:400px;position:relative;">
+                        <canvas id="grafico-relatorio"></canvas>
+                    </div>
+                </div>
+                
+                <div style="background:white;padding:20px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                    <h4 style="margin-bottom:10px;">📋 Detalhamento por Cargo</h4>
+                    <div id="detalhe-cargos"></div>
+                </div>
+            </div>
+            
+            <div style="text-align:center;margin-top:30px;">
+                <button class="btn-proximo" onclick="irPara('tela0')" style="background:#7f8c8d;">⬅️ Voltar ao Início</button>
+            </div>
+        </div>
+</body>
+</html>	
