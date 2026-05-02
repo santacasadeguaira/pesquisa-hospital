@@ -22,6 +22,11 @@ const pool = new Pool({
   }
 });
 
+// 🔹 ROTA INICIAL (AGORA FUNCIONA NO NAVEGADOR)
+app.get('/', (req, res) => {
+  res.send('Sistema online funcionando 🚀');
+});
+
 // SALVAR RESPOSTA
 app.post('/api/resposta', async (req, res) => {
   const { cargo, unidade, respostas } = req.body;
